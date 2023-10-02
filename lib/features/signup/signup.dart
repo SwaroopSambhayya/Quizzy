@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:quiz/features/categories/categories.dart';
-import 'package:quiz/features/home/home.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class SignUp extends StatefulWidget {
