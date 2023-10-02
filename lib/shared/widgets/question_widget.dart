@@ -12,7 +12,7 @@ class QuestionWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
-    final widgetHeight = (screenWidth / 16 * 9) + 48;
+    final widgetHeight = (screenWidth / 16 * 9) + 64;
     return SizedBox(
       width: screenWidth,
       height: widgetHeight,
@@ -72,7 +72,7 @@ class QuestionWidget extends StatelessWidget {
                 child: const Center(
                   child: Text(
                     '?',
-                    style: TextStyle(fontWeight: FontWeight.bold),
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                   ),
                 ),
               ),
