@@ -72,78 +72,91 @@ class _HomeState extends State<Home> {
           ),
         ],
       ),
-      body: FutureBuilder<List<QuestionData>>(
-        future: questionsData,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(
-              child: CircularProgressIndicator(),
-            );
-          } else if (snapshot.hasError) {
-            return Center(
-              child: Text('Error: ${snapshot.error}'),
-            );
-          } else {
-            final questionsData = snapshot.data!;
-            final questionData = questionsData[_questionIndex];
-            final question = questionData.question!;
-            final correctAnswer = questionData.correctAnswer!;
-            return Padding(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                children: [
-                  QuestionWidget(
-                    question: question,
-                    questionIndex: _questionIndex,
-                  ),
-                  const SizedBox(height: 32),
-                  ListView.separated(
-                    shrinkWrap: true,
-                    itemCount: questionData.options!.length,
-                    separatorBuilder: (context, index) {
-                      return const SizedBox(height: 12);
-                    },
-                    itemBuilder: (context, index) {
-                      final option = questionData.options![index];
-                      return OutlinedButton(
-                        style: OutlinedButton.styleFrom(
+      body: WillPopScope(
+        onWillPop: () => showConfirmDialog(),
+        child: FutureBuilder<List<QuestionData>>(
+          future: questionsData,
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const Center(
+                child: CircularProgressIndicator(),
+              );
+            } else if (snapshot.hasError) {
+              return Center(
+                child: Text('Error: ${snapshot.error}'),
+              );
+            } else {
+              final questionsData = snapshot.data!;
+              final questionData = questionsData[_questionIndex];
+              final question = questionData.question!;
+              final correctAnswer = questionData.correctAnswer!;
+              return Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  children: [
+                    QuestionWidget(
+                      question: question,
+                      questionIndex: _questionIndex,
+                    ),
+                    const SizedBox(height: 32),
+                    ListView.separated(
+                      shrinkWrap: true,
+                      itemCount: questionData.options!.length,
+                      separatorBuilder: (context, index) {
+                        return const SizedBox(height: 12);
+                      },
+                      itemBuilder: (context, index) {
+                        final option = questionData.options![index];
+                        return OutlinedButton(
+                          style: OutlinedButton.styleFrom(
                             backgroundColor: showAnswer
                                 ? option == correctAnswer
-                                    ? Colors.greenAccent
+                                    ? Colors.green
                                     : _selectedAnswerIndex == index
-                                        ? Colors.redAccent
+                                        ? Colors.red
                                         : null
                                 : null,
-                            shape: ContinuousRectangleBorder(
-                                borderRadius: BorderRadius.circular(12))),
-                        onPressed: () {
-                          setState(() {
-                            showAnswer = true;
-                            _selectedAnswerIndex = index;
-                          });
-                          if (option == correctAnswer) {
-                            correctAnswers++;
-                          }
-                          Future.delayed(
-                            const Duration(milliseconds: 1500),
-                            () => nextQuestion(),
-                          );
-                        },
-                        child: Text(
-                          option,
-                          style: const TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 16,
+                            foregroundColor: showAnswer
+                                ? (option == correctAnswer ||
+                                        _selectedAnswerIndex == index)
+                                    ? Colors.white
+                                    : Colors.black
+                                : Colors.black,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            side: const BorderSide(
+                                width: 0.5, color: Colors.grey),
                           ),
-                        ),
-                      );
-                    },
-                  )
-                ],
-              ),
-            );
-          }
-        },
+                          onPressed: () {
+                            setState(() {
+                              showAnswer = true;
+                              _selectedAnswerIndex = index;
+                            });
+                            if (option == correctAnswer) {
+                              correctAnswers++;
+                            }
+                            Future.delayed(
+                              const Duration(milliseconds: 1500),
+                              () => nextQuestion(),
+                            );
+                          },
+                          child: Text(
+                            option,
+                            style: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 16,
+                            ),
+                          ),
+                        );
+                      },
+                    )
+                  ],
+                ),
+              );
+            }
+          },
+        ),
       ),
     );
   }
@@ -177,5 +190,25 @@ class _HomeState extends State<Home> {
   void dispose() {
     _timer.cancel(); // Cancel the timer when the widget is disposed.
     super.dispose();
+  }
+
+  Future<bool> showConfirmDialog() async {
+    return await showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('CONFIRM'),
+          content: const Text('Are you sure you want to exit?'),
+          actions: [
+            TextButton(
+                onPressed: () => Navigator.pop(context, true),
+                child: const Text('YES')),
+            TextButton(
+                onPressed: () => Navigator.pop(context, false),
+                child: const Text('NO')),
+          ],
+        );
+      },
+    );
   }
 }

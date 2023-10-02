@@ -24,7 +24,7 @@ class QuestionWidget extends StatelessWidget {
               margin: const EdgeInsets.only(top: 16, bottom: 20),
               padding: const EdgeInsets.symmetric(horizontal: 24),
               decoration: BoxDecoration(
-                color: Colors.amber,
+                color: Theme.of(context).cardColor,
                 borderRadius: BorderRadius.circular(8.0),
               ),
               child: Center(
