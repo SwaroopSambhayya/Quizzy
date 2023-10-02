@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:quiz/core/theme/theme.dart';
-import 'package:quiz/features/home/home.dart';
+import 'package:quiz/features/categories/categories.dart';
 import 'package:quiz/features/signup/signup.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -46,7 +46,7 @@ class _QuizzyState extends State<Quizzy> {
   @override
   Widget build(BuildContext context) {
     return preferences?.getStringList('user') != null
-        ? const Home()
+        ? const SelectCategory()
         : const SignUp();
   }
 }

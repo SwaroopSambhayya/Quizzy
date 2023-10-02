@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:quiz/shared/const.dart';
+import 'package:quiz/shared/model/category.dart';
 import 'package:quiz/shared/model/question_data.dart';
 import 'package:http/http.dart' as http;
 
@@ -16,6 +17,18 @@ class ApiClient {
       return questionsData;
     } else {
       throw Exception('Failed to load quiz data');
+    }
+  }
+
+  static Future<List<Category>> fetchCategories() async {
+    final response = await http.get(Uri.parse(fetchCategoryUrl));
+    if (response.statusCode == 200) {
+      final result = jsonDecode(utf8.decode(response.bodyBytes));
+      final data = result['trivia_categories'] as List;
+      final categoryData = data.map((json) => Category.fromJson(json)).toList();
+      return categoryData;
+    } else {
+      throw Exception('Failed to load categories data');
     }
   }
 }

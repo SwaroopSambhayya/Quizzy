@@ -1,13 +1,13 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:quiz/repo/api_client.dart';
-import 'package:quiz/shared/const.dart';
+import 'package:quiz/shared/model/category.dart';
 import 'package:quiz/shared/model/question_data.dart';
 import 'package:quiz/shared/widgets/question_widget.dart';
 
 class Home extends StatefulWidget {
-  final int category;
-  const Home({Key? key, this.category = defaultCategory}) : super(key: key);
+  final Category category;
+  const Home({Key? key, required this.category}) : super(key: key);
 
   @override
   State<Home> createState() => _HomeState();
@@ -25,7 +25,7 @@ class _HomeState extends State<Home> {
   @override
   void initState() {
     super.initState();
-    questionsData = ApiClient.fetchQuestionsData(widget.category);
+    questionsData = ApiClient.fetchQuestionsData(widget.category.id);
     startTimer();
   }
 
@@ -58,6 +58,8 @@ class _HomeState extends State<Home> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        centerTitle: true,
+        title: Text(widget.category.name),
         actions: [
           const Icon(
             Icons.timer_outlined,
