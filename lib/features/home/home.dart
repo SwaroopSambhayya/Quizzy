@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:quiz/shared/const.dart';
 import 'package:quiz/shared/model/question_data.dart';
 import 'package:http/http.dart' as http;
+import 'package:quiz/shared/widgets/question_widget.dart';
 
 class Home extends StatefulWidget {
   final int category;
@@ -30,6 +31,8 @@ class _HomeState extends State<Home> {
       final data = result['results'] as List;
       final questionsData =
           data.map((json) => QuestionData.fromJson(json)).toList();
+      questionsData
+          .shuffle(); // Often the api returns the same first question. Shuffling for better debugging
       return questionsData;
     } else {
       throw Exception('Failed to load quiz data');
@@ -68,8 +71,9 @@ class _HomeState extends State<Home> {
               padding: const EdgeInsets.all(8),
               child: Column(
                 children: [
-                  Card(
-                    child: Text(questionData.question!),
+                  QuestionWidget(
+                    question: questionData.question!,
+                    questionIndex: _questionIndex,
                   ),
                   const SizedBox(height: 8),
                   ListView.builder(
