@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:quiz/repo/api_client.dart';
 import 'package:quiz/shared/const.dart';
@@ -14,14 +15,31 @@ class Home extends StatefulWidget {
 
 class _HomeState extends State<Home> {
   late Future<List<QuestionData>> questionsData;
+  late Timer _timer;
   int _questionIndex = 0;
   int _selectedAnswerIndex = -1;
   bool showAnswer = false;
+  int _secondsRemaining = 60;
+  int correctAnswers = 0;
 
   @override
   void initState() {
     super.initState();
     questionsData = ApiClient.fetchQuestionsData(widget.category);
+    startTimer();
+  }
+
+  void startTimer() {
+    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      if (_secondsRemaining > 0 && _questionIndex < 9) {
+        setState(() {
+          _secondsRemaining--;
+        });
+      } else {
+        timer.cancel();
+        showCompletedDialog("TIME UP!!");
+      }
+    });
   }
 
   void nextQuestion() async {
@@ -32,14 +50,28 @@ class _HomeState extends State<Home> {
         _questionIndex++;
       });
     } else {
-      // TODO: Navigate to quiz end/ leaderboard screen
+      showCompletedDialog("COMPELTED");
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(),
+      appBar: AppBar(
+        actions: [
+          const Icon(
+            Icons.timer_outlined,
+            size: 26,
+          ),
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Text(
+              _secondsRemaining.toString(),
+              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            ),
+          ),
+        ],
+      ),
       body: FutureBuilder<List<QuestionData>>(
         future: questionsData,
         builder: (context, snapshot) {
@@ -89,6 +121,9 @@ class _HomeState extends State<Home> {
                             showAnswer = true;
                             _selectedAnswerIndex = index;
                           });
+                          if (option == correctAnswer) {
+                            correctAnswers++;
+                          }
                           Future.delayed(
                             const Duration(milliseconds: 1500),
                             () => nextQuestion(),
@@ -111,5 +146,36 @@ class _HomeState extends State<Home> {
         },
       ),
     );
+  }
+
+  showCompletedDialog(String message) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) {
+        return AlertDialog(
+          title: Text(
+            message,
+            style: const TextStyle(fontSize: 16),
+          ),
+          content: Text(
+            "You answered $correctAnswers / 10 !!",
+            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {},
+              child: const Text('leaderboard'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  @override
+  void dispose() {
+    _timer.cancel(); // Cancel the timer when the widget is disposed.
+    super.dispose();
   }
 }
